@@ -88,6 +88,20 @@ docker logs -f ragflow-server
 docker build --platform linux/amd64 -f Dockerfile -t infiniflow/ragflow:nightly .
 ```
 
+### Local Docker Deployment (macOS Apple Silicon)
+- No ARM image exists — the x86 image runs under OrbStack/Docker Desktop emulation (slower but works)
+- **Must use `nightly` image** (`RAGFLOW_IMAGE=infiniflow/ragflow:nightly` in `docker/.env`) — the repo's `main` branch `entrypoint.sh` and `docker-compose.yml` are ahead of tagged releases and expect nginx configs (`ragflow.conf.python`) not present in older images
+- Enable `MACOS=1` in `docker/.env` for macOS optimizations
+- Set `TZ` to your local timezone (default is `Asia/Shanghai`)
+- Web UI: http://localhost (port 80), API: http://localhost:9380
+- The login API encrypts passwords client-side — cannot login via raw curl; use the web UI or Playwright
+
+### LM Studio Integration
+- LM Studio serves OpenAI-compatible API; RAGFlow has a native **LM-Studio** provider (Settings > Model Providers)
+- From Docker containers, reach LM Studio at `http://host.docker.internal:1234/v1` (the compose file already sets `extra_hosts: host.docker.internal:host-gateway`)
+- Need both a **chat model** and an **embedding model** loaded in LM Studio for RAG to work
+- Set both as defaults in Settings > Model Providers > "Set default models"
+
 ## Key Configuration Files
 
 - `docker/.env` - Environment variables for Docker deployment
